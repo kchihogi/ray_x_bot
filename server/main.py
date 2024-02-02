@@ -37,7 +37,7 @@ def main():
     parser.add_argument("-at","--access_token", type=str, required=False, default=os.environ['ACCESS_TOKEN'], help="Access token for Twitter API. Default is from environment variable ACCESS_TOKEN")
     parser.add_argument("-ats","--access_token_secret", type=str, required=False, default=os.environ['ACCESS_TOKEN_SECRET'], help="Access token secret for Twitter API. Default is from environment variable ACCESS_TOKEN_SECRET")
     parser.add_argument("-ver","--version", action="version", version="%(prog)s (version 0.1)")
-    parser.add_argument("-v","--verbose", "-v", action="store_true", help="Enable verbose mode")
+    parser.add_argument("-v","--verbose", action="store_true", help="Enable verbose mode")
     parser.add_argument("-q","--quiet", "-q", action="store_true", help="Enable quiet mode")
     parser.add_argument("-n","--dry-run", action="store_true", help="Enable dry-run mode")
     parser.add_argument("-s","--seed", type=int, required=False, help="Seed for random number generator")    

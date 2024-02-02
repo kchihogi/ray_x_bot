@@ -97,8 +97,8 @@ def main():
     parser.add_argument("-p", "--image_path", type=str, required=False, help="Path to image to attach to tweet. PNG, JPEG and GIF are supported. Only used in create mode")
     parser.add_argument("-i", "--id", type=str, required=False, help="ID of tweet to retrieve or delete. Only used in retrieve or delete mode")
     parser.add_argument("-l", "--limit", type=int, required=False, default=10, help="Limit of tweets to list. Only used in list mode. -1 for all tweets. Default is 10")
-    parser.add_argument("-f", "--filter", type=str, required=False, help="Filter to apply to list of tweets. Contidition: field like %value%. Only used in list mode")
-    parser.add_argument("-v","--verbose", "-v", action="store_true", help="Enable verbose mode")
+    parser.add_argument("-f", "--filter", type=str, required=False, help="Filter to apply to list of tweets. Contidition: field like %%value%%. Only used in list mode")
+    parser.add_argument("-v","--verbose", action="store_true", help="Enable verbose mode")
     parser.add_argument("-n","--dry-run", action="store_true", help="Enable dry-run mode")
     parser.add_argument("-ver","--version", action="version", version="%(prog)s (version 0.1)")
     parser.add_argument("-csv","--csv", action="store_true", help="Enable csv output. Only used in list or retrieve mode")
@@ -127,38 +127,38 @@ def main():
     exit(ret)
 
 if __name__ == "__main__":
-    # main()
+    main()
 
-    db = TweetDB()
+    # db = TweetDB()
 
-    db.drop_all_tables()
-    db.create_all_tables()
+    # db.drop_all_tables()
+    # db.create_all_tables()
 
-    for i in range(40):
-        model = TweetModel(text=f"Hello, world! {i}", image=None)
-        db.add_tweet(model)
+    # for i in range(40):
+    #     model = TweetModel(text=f"Hello, world! {i}", image=None)
+    #     db.add_tweet(model)
 
-    ret = list_tweets(db, -1, None, False)
-    print("-"*20)
+    # ret = list_tweets(db, -1, None, False)
+    # print("-"*20)
 
-    ret = retrieve_tweet(db, 5, False)
+    # ret = retrieve_tweet(db, 5, False)
 
-    print("-"*20)
+    # print("-"*20)
 
-    ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.png")
-    ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.jpeg")
-    ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.gif")
+    # ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.png")
+    # ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.jpeg")
+    # ret = create_tweet(db, "Hello, world!", "/workspace/server/tests/imgs/image.gif")
 
-    ret = list_tweets(db, -1, None, False)
+    # ret = list_tweets(db, -1, None, False)
 
-    # ret = retrieve_tweet(db, 41, False)
-    # ret = retrieve_tweet(db, 42, False)
-    # ret = retrieve_tweet(db, 43, False)
+    # # ret = retrieve_tweet(db, 41, False)
+    # # ret = retrieve_tweet(db, 42, False)
+    # # ret = retrieve_tweet(db, 43, False)
 
-    print("-"*20)
+    # print("-"*20)
 
-    ret = delete_tweet(db, 41)
+    # ret = delete_tweet(db, 41)
 
-    print("-"*20)
+    # print("-"*20)
 
 
