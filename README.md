@@ -84,17 +84,103 @@ optional arguments:
 データベースはSQLite3を使用しています。デフォルトでは`ray_x_bot.db`というファイル名で保存されます。
 環境変数`DB_FILE`のみでファイル名を変更できます。
 
+## ツイートデータの操作
+
+ツイートデータはデータベースに保存されます。
+データベースの操作には、`utils.py`を使用します。
+
+```bash
+python utils.py
+```
+
+`-h` オプションでヘルプを表示できます。
+
+```bash
+usage: utils.py [-h] [-m MODE] [-t TWEET] [-p IMAGE_PATH] [-i ID] [-l LIMIT] [-f FILTER] [-v] [-n] [-ver] [-csv]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MODE, --mode MODE  Mode of operation. Available modes: list, retrieve, create, delete. Default is list.
+  -t TWEET, --tweet TWEET
+                        Tweet to create. Only used in create mode
+  -p IMAGE_PATH, --image_path IMAGE_PATH
+                        Path to image to attach to tweet. PNG, JPEG and GIF are supported. Only used in create mode
+  -i ID, --id ID        ID of tweet to retrieve or delete. Only used in retrieve or delete mode
+  -l LIMIT, --limit LIMIT
+                        Limit of tweets to list. Only used in list mode. -1 for all tweets. Default is 10
+  -f FILTER, --filter FILTER
+                        Filter to apply to list of tweets. Contidition: field like %value%. Only used in list mode
+  -v, --verbose         Enable verbose mode
+  -n, --dry-run         Enable dry-run mode
+  -ver, --version       show program's version number and exit
+  -csv, --csv           Enable csv output. Only used in list or retrieve mode
+```
+
+## ツイートの一覧表示
+
+`list`モードでツイートの一覧を表示できます。
+
+```bash
+python utils.py -m list
+```
+
+`-l` オプションで表示するツイートの数を指定できます。
+
+```bash
+python utils.py -m list -l 5
+```
+
+`-f` オプションで表示するツイートを絞り込むことができます。
+
+```bash
+python utils.py -m list -f "hoge"
+```
+
+`-csv` オプションでCSV形式で出力できます。
+
+```bash
+python utils.py -m list -csv
+```
+
+## ツイートの取得
+
+`retrieve`モードでツイートを取得できます。
+
+```bash
+python utils.py -m retrieve -i 1
+```
+
+`-csv` オプションでCSV形式で出力できます。
+
+```bash
+python utils.py -m retrieve -i 1 -csv
+```
+
 ## ツイートの登録
+
+`create`モードでツイートを登録できます。
+
+```bash
+python utils.py -m create -t "hoge"
+```
+
+`-p` オプションで画像を添付できます。
+
+```bash
+python utils.py -m create -t "hoge" -p "path/to/image.png"
+```
+
+## ツイートの更新
 
 TODO
 
 ## ツイートの削除
 
-TODO
+`delete`モードでツイートを削除できます。
 
-## ツイートの一覧表示
-
-TODO
+```bash
+python utils.py -m delete -i 1
+```
 
 ## ライセンス
 
