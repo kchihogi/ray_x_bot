@@ -1,3 +1,4 @@
+import os
 import datetime
 from db import DB
 from models import TweetModel
@@ -8,7 +9,7 @@ class TweetDB:
     ]
 
     def __init__(self):
-        self.db = DB("tweets.db")
+        self.db = DB(os.environ['DB_FILE'] if 'DB_FILE' in os.environ else "ray_x_bot.db")
         self.db.connect()
         for table in self.tables:
             instance = table()
