@@ -196,3 +196,6 @@ jest.config.js
 
 #expo
 **/.expo/*
+
+#sqlite
+*.db
