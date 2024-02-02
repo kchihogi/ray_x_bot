@@ -27,11 +27,17 @@ class DB:
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
         self.execute_query(query)
 
-    def select(self, table_name, columns, where=None):
+    def select(self, table_name, columns, where=None, limit=None):
         if where:
-            query = f"SELECT {columns} FROM {table_name} WHERE {where}"
+            if limit:
+                query = f"SELECT {columns} FROM {table_name} WHERE {where} LIMIT {limit}"
+            else:
+                query = f"SELECT {columns} FROM {table_name} WHERE {where}"
         else:
-            query = f"SELECT {columns} FROM {table_name}"
+            if limit:
+                query = f"SELECT {columns} FROM {table_name} LIMIT {limit}"
+            else:
+                query = f"SELECT {columns} FROM {table_name}"
         return self.execute_query(query)
 
     def update(self, table_name, set, where):

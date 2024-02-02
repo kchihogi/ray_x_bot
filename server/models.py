@@ -29,11 +29,28 @@ class ModelBase:
         members = []
         for attr in dir(self):
             if not callable(getattr(self, attr)) and not attr.startswith("__") and not attr == "table_name":
-                members.append(getattr(self, attr)["value"])
+                member = getattr(self, attr)
+                if isinstance(member["value"], bytes):
+                    members.append("'{0}'".format(member["value"].hex())) if member["value"] is not None else members.append(None)
+                elif isinstance(member["value"], str):
+                    members.append("'{0}'".format(member["value"])) if member["value"] is not None else members.append(None)
+                else:
+                    members.append(member["value"]) if member["value"] is not None else members.append(None)
         return members
 
     def to_dict(self):
-        return {attr: getattr(self, attr)["value"] for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__") and not attr == "table_name"}
+        dict = {}
+        for attr in dir(self):
+            if not callable(getattr(self, attr)) and not attr.startswith("__") and not attr == "table_name":
+                member = getattr(self, attr)
+                if isinstance(member["value"], bytes):
+                    dict[attr] = "'{0}'".format(member["value"].hex()) if member["value"] is not None else None
+                elif isinstance(member["value"], str):
+                    dict[attr] = "'{0}'".format(member["value"]) if member["value"] is not None else None
+                else:
+                    dict[attr] = member["value"] if member["value"] is not None else None
+        return dict
+        # return {attr: getattr(self, attr)["value"] for attr in dir(self) if not callable(getattr(self, attr)) and not attr.startswith("__") and not attr == "table_name"}
 
     def to_tuple(self):
         return tuple(self.members())
@@ -56,11 +73,15 @@ class TweetModel(ModelBase):
     ):
         self.table_name = "tweets"
         self.id = {"type": "INTEGER", "primary_key": True, "value": id}
-        self.text = {"type": "TEXT", "value": "'{0}'".format(text) if text is not None else None}
-        self.image = {"type": "BLOB", "value": image, "nullable": True}
+        self.text = {"type": "TEXT", "value": "{0}".format(text) if text is not None else None}
+        if image is not None and not isinstance(image, bytes):
+            image = bytes.fromhex(image)
+            self.image = {"type": "BLOB", "value": image, "nullable": True}
+        else:
+            self.image = {"type": "BLOB", "value": image, "nullable": True}
         self.times = {"type": "INTEGER", "value": times}
-        self.created_at = {"type": "TEXT", "value": "'{0}'".format(created_at) if created_at is not None else None}
-        self.last_updated = {"type": "TEXT", "value": "'{0}'".format(last_updated) if last_updated is not None else None}
+        self.created_at = {"type": "TEXT", "value": "{0}".format(created_at) if created_at is not None else None}
+        self.last_updated = {"type": "TEXT", "value": "{0}".format(last_updated) if last_updated is not None else None}
 
     def __str__(self):
         return f"TweetModel(id={self.id}, text={self.text}, image={len(self.image['value']) if self.image['value'] is not None else None}, times={self.times}, created_at={self.created_at}, last_updated={self.last_updated})"
@@ -76,15 +97,19 @@ class TweetModel(ModelBase):
         if id is not None:
             self.id = {"type": self.id["type"], "primary_key": self.id["primary_key"], "value": id}
         if text is not None:
-            self.text = {"type": self.text["type"], "value": "'{0}'".format(text) if text is not None else None}
+            self.text = {"type": self.text["type"], "value": "{0}".format(text) if text is not None else None}
         if image is not None:
-            self.image = {"type": self.image["type"], "value": image}
+            if not isinstance(image, bytes):
+                image = bytes.fromhex(image)
+                self.image = {"type": self.image["type"], "value": image, "nullable": self.image["nullable"]}
+            else:
+                self.image = {"type": self.image["type"], "value": image, "nullable": self.image["nullable"]}
         if times is not None:
             self.times = {"type": self.times["type"], "value": times}
         if created_at is not None:
-            self.created_at = {"type": self.created_at["type"], "value": "'{0}'".format(created_at) if created_at is not None else None}
+            self.created_at = {"type": self.created_at["type"], "value": "{0}".format(created_at) if created_at is not None else None}
         if last_updated is not None:
-            self.last_updated = {"type": self.last_updated["type"], "value": "'{0}'".format(last_updated) if last_updated is not None else None}
+            self.last_updated = {"type": self.last_updated["type"], "value": "{0}".format(last_updated) if last_updated is not None else None}
 
 if __name__ == "__main__":
     model = TweetModel()
@@ -106,7 +131,7 @@ if __name__ == "__main__":
     if binary_data:
         print("len(binary_data):", len(binary_data))
 
-    model.setter(1, "Hello, world!", binary_data, 1, "2021-01-01 00:00:00", "2021-01-01 00:00:01")
+    model.setter(id=1, text="Hello, world!", image=binary_data, times=1, created_at="2021-01-01 00:00:00", last_updated="2021-01-01 00:00:01")
     print("setter:", model)
     print("to_dict:", model.to_dict())
     print("to_tuple:", model.to_tuple())

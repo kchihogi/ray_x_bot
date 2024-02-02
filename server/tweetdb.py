@@ -52,12 +52,45 @@ class TweetDB:
         for tweet in tweets:
             tweet_list.append(TweetModel(*tweet))
         return tweet_list
+    
+    def get_tweets_by_filter(self, filter):
+        tweets = self.db.select(self.tables[0]().table_name, self.tables[0]().columns(), filter)
+        tweet_list = []
+        for tweet in tweets:
+            tweet_list.append(TweetModel(*tweet))
+        return tweet_list
+    
+    def get_tweets_by_limit(self, limit):
+        tweets = self.db.select(self.tables[0]().table_name, self.tables[0]().columns(), limit=limit)
+        tweet_list = []
+        for tweet in tweets:
+            tweet_list.append(TweetModel(*tweet))
+        return tweet_list
+    
+    def get_tweets_by_filter_and_limit(self, filter, limit):
+        tweets = self.db.select(self.tables[0]().table_name, self.tables[0]().columns(), filter, limit)
+        tweet_list = []
+        for tweet in tweets:
+            tweet_list.append(TweetModel(*tweet))
+        return tweet_list
 
     def __del__(self):
         self.db.disconnect()
 
+    def drop_all_tables(self):
+        for table in self.tables:
+            self.db.drop_table(table().table_name)
+
+    def create_all_tables(self):
+        for table in self.tables:
+            instance = table()
+            self.db.create_table(instance.table_name, instance.columns(with_type=True))
+
 if __name__ == "__main__":
     db = TweetDB()
+
+    db.drop_all_tables()
+    db.create_all_tables()
 
     model = TweetModel(text="Hello, world!", image=None)
     db.add_tweet(model)
@@ -75,6 +108,16 @@ if __name__ == "__main__":
         db.delete_tweet(id)
         print(len(db.get_tweets()))
 
-    for i in range(10):
+    for i in range(40):
         model = TweetModel(text=f"Hello, world! {i}", image=None)
         db.add_tweet(model)
+
+    print("----------------------")
+    tweets = db.get_tweets()
+    print(len(tweets))
+    for tweet in tweets:
+        print(tweet)
+    print(len(db.get_tweets_by_limit(5)))
+    print(len(db.get_tweets_by_filter("text like '%5%'")))
+    print(len(db.get_tweets_by_filter_and_limit("text like '%5%'", 2)))
+
