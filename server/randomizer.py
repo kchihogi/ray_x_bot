@@ -2,8 +2,12 @@ import random
 from tweetdb import TweetDB
 
 class Randomizer:
-    def __init__(self):
+    def __init__(self, seed=None):
         self.db = TweetDB()
+        if seed:
+            random.seed(seed)
+        else:
+            random.seed()
 
     def generate_random_number(self, start, end):
         return random.randint(start, end)
