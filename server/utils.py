@@ -1,4 +1,6 @@
 import argparse
+import requests
+import urllib.parse
 from tweetdb import TweetDB
 from models import TweetModel
 
@@ -55,11 +57,32 @@ def retrieve_tweet(db, id, csv):
             print(f"Image saved as {name}")
     return 0
 
+def _is_url_image(image_path):
+    parsed_url = urllib.parse.urlparse(image_path)
+    return parsed_url.scheme in ('http', 'https')
+
 def create_tweet(db, text, image_path):
     if not text:
         print("Error: Tweet is required for create mode")
         return 1
-    if image_path:
+    
+    if image_path and _is_url_image(image_path):
+        # download image
+        try:
+            response = requests.get(image_path)
+            response.raise_for_status()
+            print(response.headers['content-type'])
+            if response.headers['content-type'] != "image/png" and response.headers['content-type'] != "image/jpeg" and response.headers['content-type'] != "image/gif":
+                print("Error: Invalid image URL")
+                return 1
+            image = response.content
+        except requests.exceptions.HTTPError as http_err:
+            print(f"Error: {http_err}")
+            return 1
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
+    elif image_path:
         # check if image_path is valid
         if not image_path.endswith(".png") and not image_path.endswith(".jpeg") and not image_path.endswith(".gif") and not image_path.endswith(".PNG") and not image_path.endswith(".JPEG") and not image_path.endswith(".GIF") and not image_path.endswith(".jpg") and not image_path.endswith(".JPG") and not image_path.endswith(".jpg"):
             print("Error: Invalid image format. Supported formats: PNG, JPEG, GIF")

@@ -17,6 +17,6 @@ class Randomizer:
         try:
             get_random = self.generate_random_number(0, len(tweets)-1)
         except ValueError:
-            return "No tweets found"
+            raise ValueError("No tweets found")
         self.db.update_tweet(tweets[get_random])
         return tweets[get_random]

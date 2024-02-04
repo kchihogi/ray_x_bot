@@ -5,7 +5,42 @@ import tweepy
 from randomizer import Randomizer
 from mailer import Mailer
 
-def tweet(args, randomizer, client):
+def upload_image(tweet, api):
+
+    if tweet.image["value"] is None:
+        raise Exception("No image to upload")
+    
+    id = tweet.id["value"]
+    blob = tweet.image["value"]
+
+    filename = "image_" + str(id)
+    media_category = "" # tweet_image, tweet_video, tweet_gif
+
+    type = blob[0:8]
+    if type == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a":
+        filename += ".png"
+        media_category = "tweet_image"
+    elif type == b"\xff\xd8\xff\xe0\x00\x10\x4a\x46":
+        filename += ".jpeg"
+        media_category = "tweet_image"
+    elif type == b"GIF89a\xe5\x00":
+        filename += ".gif"
+        media_category = "tweet_gif"
+    else:
+        raise Exception("Unsupported image type")
+    
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    with open(filename, "wb") as file:
+        file.write(blob)
+
+    media = api.media_upload(filename=filename, media_category=media_category, chunked=True)
+    os.remove(filename)
+
+    return [media.media_id]
+
+def tweet(args, randomizer, client, api):
     ret = 0
     try:
         tweet = randomizer.get_random_tweet()
@@ -13,7 +48,11 @@ def tweet(args, randomizer, client):
             print("Dry-run mode enabled")
             print(f"Tweeting: {tweet}")
         else:
-            client.create_tweet(text="Hello, world!")
+            if tweet.image["value"] is not None:
+                media_ids = upload_image(tweet, api)
+                client.create_tweet(text=tweet.text["value"], media_ids=media_ids)
+            else:
+                client.create_tweet(text=tweet.text["value"])
         ret = 0
     except Exception as e:
         if args.email_notification:
@@ -64,6 +103,10 @@ def main():
         mailer.send_email(args.email_to, args.email_subject, args.email_body)
         exit(0)
 
+    auth = tweepy.OAuthHandler(args.api_key, args.api_key_secret)
+    auth.set_access_token(args.access_token, args.access_token_secret)
+
+    api = tweepy.API(auth)
     client = tweepy.Client(
         consumer_key=args.api_key,
         consumer_secret=args.api_key_secret,
@@ -74,14 +117,14 @@ def main():
     randomizer = Randomizer(args.seed) # db connection in Randomizer
 
     if args.onetweet:
-        ret = tweet(args, randomizer, client)
+        ret = tweet(args, randomizer, client, api)
         exit(ret)
     else:
         if not args.quiet:
             print(f"Tweeting every {args.interval} seconds")
         try:
             while True:
-                ret = tweet(args, randomizer, client)
+                ret = tweet(args, randomizer, client, api)
                 if not args.quiet:
                     print(f"Sleeping for 0 / {args.interval} seconds")
                 cnt = 0

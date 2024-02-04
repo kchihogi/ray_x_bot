@@ -170,6 +170,12 @@ python utils.py -m create -t "hoge"
 python utils.py -m create -t "hoge" -p "path/to/image.png"
 ```
 
+改行を含むツイートを登録する場合は、クォーテーションの前に$を付けて\nで改行してください。
+
+```bash
+python utils.py -m create -t $'hoge\nfuga'
+```
+
 ## ツイートの更新
 
 TODO

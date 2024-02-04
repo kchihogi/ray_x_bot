@@ -199,3 +199,5 @@ jest.config.js
 
 #sqlite
 *.db
+
+**/data/*
