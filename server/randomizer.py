@@ -20,3 +20,6 @@ class Randomizer:
             raise ValueError("No tweets found")
         self.db.update_tweet(tweets[get_random])
         return tweets[get_random]
+
+    def generate_random_number(self, start, end):
+        return random.randint(start, end)

@@ -54,6 +54,11 @@ def tweet(args, randomizer, client, api):
             else:
                 client.create_tweet(text=tweet.text["value"])
         ret = 0
+    except ValueError as e:
+        # no tweets found is ignored
+        if not args.quiet:
+            print(f"WARN: {e}")
+        ret = 0
     except Exception as e:
         if args.email_notification:
             if not args.quiet:
@@ -66,10 +71,26 @@ def tweet(args, randomizer, client, api):
         ret = 1
     return ret
 
+def wait_for_tweet(args, randomizer):
+    interval = args.interval
+
+    if args.random_interval > 0:
+        interval = randomizer.generate_random_number(args.random_interval, args.interval)
+
+    if not args.quiet:
+        print(f"Sleeping for 0 / {interval} seconds")
+    cnt = 0
+    while cnt < interval:
+        time.sleep(1)
+        cnt += 1
+        if cnt % (interval/10) == 0 and not args.quiet:
+            print(f"Sleeping for {cnt} / {interval} seconds")
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--onetweet", action="store_true", help="Only tweet once and exit")
     parser.add_argument("-i", "--interval", type=int, required=False, default=(60*60*3), help="Interval in seconds between tweets. Default is 3 hours")
+    parser.add_argument("-ri", "--random_interval", type=int, required=False, default=0, help="Random interval in seconds between tweets. Default is 0. If set, interval is used as the maximum value")
     parser.add_argument("-bt", "--bearer_token", type=str, required=False, default=os.environ['BEARER_TOKEN'], help="Bearer token for Twitter API. Default is from environment variable BEARER_TOKEN")
     parser.add_argument("-ak","--api_key", type=str, required=False, default=os.environ['API_KEY'], help="API key for Twitter API. Default is from environment variable API_KEY")
     parser.add_argument("-aks","--api_key_secret", type=str, required=False, default=os.environ['API_KEY_SECRET'], help="API key secret for Twitter API. Default is from environment variable API_KEY_SECRET")
@@ -121,18 +142,14 @@ def main():
         exit(ret)
     else:
         if not args.quiet:
-            print(f"Tweeting every {args.interval} seconds")
+            if args.random_interval > 0:
+                print(f"Tweeting every {args.random_interval} - {args.interval} seconds")
+            else:
+                print(f"Tweeting every {args.interval} seconds")
         try:
             while True:
                 ret = tweet(args, randomizer, client, api)
-                if not args.quiet:
-                    print(f"Sleeping for 0 / {args.interval} seconds")
-                cnt = 0
-                while cnt < args.interval:
-                    time.sleep(1)
-                    cnt += 1
-                    if cnt % (args.interval/10) == 0 and not args.quiet:
-                        print(f"Sleeping for {cnt} / {args.interval} seconds")
+                wait_for_tweet(args, randomizer)
         except KeyboardInterrupt:
             if not args.quiet:
                 print("Exiting")

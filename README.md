@@ -16,7 +16,7 @@ python main.py
 `-h` オプションでヘルプを表示できます。
 
 ```bash
-usage: main.py [-h] [-o] [-i INTERVAL] [-bt BEARER_TOKEN] [-ak API_KEY] [-aks API_KEY_SECRET] [-at ACCESS_TOKEN] [-ats ACCESS_TOKEN_SECRET] [-ver] [-v] [-q] [-n] [-s SEED] [-en]
+usage: main.py [-h] [-o] [-i INTERVAL] [-ri RANDOM_INTERVAL] [-bt BEARER_TOKEN] [-ak API_KEY] [-aks API_KEY_SECRET] [-at ACCESS_TOKEN] [-ats ACCESS_TOKEN_SECRET] [-ver] [-v] [-q] [-n] [-s SEED] [-en]
                [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest]
 
 optional arguments:
@@ -24,6 +24,8 @@ optional arguments:
   -o, --onetweet        Only tweet once and exit
   -i INTERVAL, --interval INTERVAL
                         Interval in seconds between tweets. Default is 3 hours
+  -ri RANDOM_INTERVAL, --random_interval RANDOM_INTERVAL
+                        Random interval in seconds between tweets. Default is 0. If set, interval is used as the maximum value
   -bt BEARER_TOKEN, --bearer_token BEARER_TOKEN
                         Bearer token for Twitter API. Default is from environment variable BEARER_TOKEN
   -ak API_KEY, --api_key API_KEY
