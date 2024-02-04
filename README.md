@@ -209,6 +209,98 @@ python utils.py -m backup -bdb "backup.db"
 python utils.py -m restore -bdb "backup.db"
 ```
 
+## Dockerで使用する
+
+Dockerで使用する場合は、以下のようにします。
+DockerHubからイメージを取得するか、このリポジトリをクローンしてビルドしてください。
+[DockerHub-ray_x_bot](https://hub.docker.com/r/kchihogi/ray_x_bot "DockerHub")はこちら。
+
+ディレクトリの作成と移動
+
+```bash
+mkdir ray_x_bot
+cd ray_x_bot
+```
+
+.envファイルを作成
+
+```bash
+touch .env
+```
+
+.envファイルに環境変数を設定
+
+```bash
+API_KEY=
+API_KEY_SECRET=
+BEARER_TOKEN=
+ACCESS_TOKEN=
+ACCESS_TOKEN_SECRET=
+CLIENT_ID=
+CLIENT_SECRET=
+REDIRECT_URI=
+EMAIL_SERVER=
+EMAIL_PORT=
+EMAIL_FROM=
+EMAIL_PASSWORD=
+EMAIL_TO=
+EMAIL_SUBJECT=
+EMAIL_BODY=
+DB_FILE=
+```
+
+Dockerイメージを取得
+
+```bash
+docker pull kchihogi/ray_x_bot
+```
+
+または、このリポジトリをクローンしてビルド
+
+```bash
+git clone
+docker build -t ray_x_bot .
+```
+
+Dockerコンテナを起動
+
+```bash
+docker run -d --env-file .env --name ray_x_bot ray_x_bot python /usr/local/server/main.py
+```
+
+Dockerコンテナを停止
+
+```bash
+docker stop ray_x_bot
+```
+
+Dockerコンテナを再起動
+
+```bash
+docker start ray_x_bot
+```
+
+Dockerコンテナを削除
+
+```bash
+docker rm ray_x_bot
+```
+
+Dockerイメージを削除
+
+```bash
+docker rmi ray_x_bot
+```
+
+Dockerコンテナへアタッチ
+DB操作はutils.pyを使用してください。
+utils.pyはDockerコンテナ内にインストールされています。
+/usr/local/server/utils.pyを実行する
+
+```bash
+docker exec -it ray_x_bot /usr/local/server/utils.py
+```
+
 ## ライセンス
 
 MIT
