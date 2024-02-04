@@ -1,3 +1,4 @@
+import os
 import argparse
 import requests
 import urllib.parse
@@ -115,7 +116,7 @@ def delete_tweet(db, id):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--mode", type=str, required=False, default="list", help="Mode of operation. Available modes: list, retrieve, create, delete. Default is list.")
+    parser.add_argument("-m", "--mode", type=str, required=False, default="list", help="Mode of operation. Available modes: list, retrieve, create, delete, backup, restore. Default is list")
     parser.add_argument("-t", "--tweet", type=str, required=False, help="Tweet to create. Only used in create mode")
     parser.add_argument("-p", "--image_path", type=str, required=False, help="Path to image to attach to tweet. PNG, JPEG and GIF are supported. Only used in create mode")
     parser.add_argument("-i", "--id", type=str, required=False, help="ID of tweet to retrieve or delete. Only used in retrieve or delete mode")
@@ -125,6 +126,8 @@ def main():
     parser.add_argument("-n","--dry-run", action="store_true", help="Enable dry-run mode")
     parser.add_argument("-ver","--version", action="version", version="%(prog)s (version 0.1)")
     parser.add_argument("-csv","--csv", action="store_true", help="Enable csv output. Only used in list or retrieve mode")
+    parser.add_argument("-db", "--db_file", type=str, required=False, default=os.environ['DB_FILE'], help="Database file name. Only used in backup or restore mode. Default is from environment variable DB_FILE")
+    parser.add_argument("-bdb", "--backup_db_file", type=str, required=False, help="Backup database file name. Only used in backup or restore mode")
     args = parser.parse_args()
 
     for arg in vars(args):
@@ -143,6 +146,10 @@ def main():
         ret = create_tweet(db, args.tweet, args.image_path)
     elif args.mode == "delete":
         ret = delete_tweet(db, args.id)
+    elif args.mode == "backup":
+        ret = db.backup_db(args.db_file, args.backup_db_file)
+    elif args.mode == "restore":
+        ret = db.restore_db(args.db_file, args.backup_db_file)
     else:
         print(f"Error: Invalid mode {args.mode}")
         exit(1)

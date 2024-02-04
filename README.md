@@ -102,7 +102,7 @@ usage: utils.py [-h] [-m MODE] [-t TWEET] [-p IMAGE_PATH] [-i ID] [-l LIMIT] [-f
 
 optional arguments:
   -h, --help            show this help message and exit
-  -m MODE, --mode MODE  Mode of operation. Available modes: list, retrieve, create, delete. Default is list.
+  -m MODE, --mode MODE  Mode of operation. Available modes: list, retrieve, create, delete, backup, restore. Default is list.
   -t TWEET, --tweet TWEET
                         Tweet to create. Only used in create mode
   -p IMAGE_PATH, --image_path IMAGE_PATH
@@ -116,6 +116,9 @@ optional arguments:
   -n, --dry-run         Enable dry-run mode
   -ver, --version       show program's version number and exit
   -csv, --csv           Enable csv output. Only used in list or retrieve mode
+  -db, --db_file        Database file name. Only used in backup or restore mode. Default is from environment variable DB_FILE
+  -bdb, --backup_db_file
+                        Backup database file name. Only used in backup or restore mode.
 ```
 
 ## ツイートの一覧表示
@@ -188,6 +191,22 @@ TODO
 
 ```bash
 python utils.py -m delete -i 1
+```
+
+## データベースのバックアップ
+
+`backup`モードでデータベースをバックアップできます。
+
+```bash
+python utils.py -m backup -bdb "backup.db"
+```
+
+## データベースのリストア
+
+`restore`モードでデータベースをリストアできます。
+
+```bash
+python utils.py -m restore -bdb "backup.db"
 ```
 
 ## ライセンス

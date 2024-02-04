@@ -86,6 +86,28 @@ class TweetDB:
             instance = table()
             self.db.create_table(instance.table_name, instance.columns(with_type=True))
 
+    def backup_db(self, db_file = None, backup_db_file = None):
+        if db_file is None:
+            db_file = os.environ['DB_FILE'] if 'DB_FILE' in os.environ else "ray_x_bot.db"
+        if backup_db_file is None:
+            backup_db_file = f"{db_file}.backup"
+        with open(db_file, 'rb') as f:
+            data = f.read()
+            with open(backup_db_file, 'wb') as b:
+                b.write(data)
+        return 0
+
+    def restore_db(self, db_file = None, backup_db_file = None):
+        if db_file is None:
+            db_file = os.environ['DB_FILE'] if 'DB_FILE' in os.environ else "ray_x_bot.db"
+        if backup_db_file is None:
+            backup_db_file = f"{db_file}.backup"
+        with open(backup_db_file, 'rb') as f:
+            data = f.read()
+            with open(db_file, 'wb') as b:
+                b.write(data)
+        return 0
+
 if __name__ == "__main__":
     db = TweetDB()
 
@@ -120,4 +142,3 @@ if __name__ == "__main__":
     print(len(db.get_tweets_by_limit(5)))
     print(len(db.get_tweets_by_filter("text like '%5%'")))
     print(len(db.get_tweets_by_filter_and_limit("text like '%5%'", 2)))
-
