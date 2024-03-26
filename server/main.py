@@ -43,7 +43,7 @@ def upload_image(tweet, api):
 def tweet(args, randomizer, client, api):
     ret = 0
     try:
-        tweet = randomizer.get_random_tweet()
+        tweet = randomizer.get_random_tweet(args.only_new)
         if args.dry_run:
             print("Dry-run mode enabled")
             print(f"Tweeting: {tweet}")
@@ -110,7 +110,11 @@ def main():
     parser.add_argument("-su","--email_subject", type=str, required=False, default=os.environ['EMAIL_SUBJECT'] if 'EMAIL_SUBJECT' in os.environ else None, help="Subject of email to send. Default is from environment variable EMAIL_SUBJECT if set")
     parser.add_argument("-bo","--email_body", type=str, required=False, default=os.environ['EMAIL_BODY'] if 'EMAIL_BODY' in os.environ else None, help="Body of email to send. Default is from environment variable EMAIL_BODY if set")
     parser.add_argument("-etest","--email_test", action="store_true", help="Enable email test")
+    parser.add_argument("-on","--only_new", action="store_true", help="Only tweet new tweets")
     args = parser.parse_args()
+
+    if not args.quiet:
+        print("=====Starting X RAY bot=====")
 
     for arg in vars(args):
         if not args.quiet and args.verbose:

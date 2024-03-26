@@ -17,7 +17,7 @@ python main.py
 
 ```bash
 usage: main.py [-h] [-o] [-i INTERVAL] [-ri RANDOM_INTERVAL] [-bt BEARER_TOKEN] [-ak API_KEY] [-aks API_KEY_SECRET] [-at ACCESS_TOKEN] [-ats ACCESS_TOKEN_SECRET] [-ver] [-v] [-q] [-n] [-s SEED] [-en]
-               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest]
+               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest] [-on]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -57,7 +57,10 @@ optional arguments:
                         Subject of email to send. Default is from environment variable EMAIL_SUBJECT if set
   -bo EMAIL_BODY, --email_body EMAIL_BODY
                         Body of email to send. Default is from environment variable EMAIL_BODY if set
-  -etest, --email_test  Enable email test
+  -etest, --email_test
+                        Enable email test
+  -on, --only_new
+                        Only tweet new tweets
 ```
 
 ## 環境変数
