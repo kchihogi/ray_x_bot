@@ -71,11 +71,18 @@ def tweet(args, randomizer, client, api):
         ret = 1
     return ret
 
-def wait_for_tweet(args, randomizer):
+def wait_for_tweet(args, randomizer, previous_interval):
     interval = args.interval
+    base_interval = args.interval
+    diff = base_interval - previous_interval if previous_interval > 0 else 0
 
     if args.random_interval > 0:
-        interval = randomizer.generate_random_number(args.random_interval, args.interval)
+        interval = randomizer.generate_random_number(args.random_interval, base_interval)
+
+    if diff > 0:
+        if not args.quiet:
+            print(f"Sleeping for {diff} seconds to compensate for previous tweet")
+        time.sleep(diff)
 
     if not args.quiet:
         print(f"Sleeping for 0 / {interval} seconds")
@@ -85,6 +92,8 @@ def wait_for_tweet(args, randomizer):
         cnt += 1
         if cnt % (interval/10) == 0 and not args.quiet:
             print(f"Sleeping for {cnt} / {interval} seconds")
+
+    return interval
 
 def main():
     parser = argparse.ArgumentParser()
@@ -152,9 +161,10 @@ def main():
             else:
                 print(f"Tweeting every {args.interval} seconds")
         try:
+            previous_interval = 0
             while True:
                 ret = tweet(args, randomizer, client, api)
-                wait_for_tweet(args, randomizer)
+                previous_interval = wait_for_tweet(args, randomizer, previous_interval)
         except KeyboardInterrupt:
             if not args.quiet:
                 print("Exiting")
