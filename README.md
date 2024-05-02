@@ -17,7 +17,7 @@ python main.py
 
 ```bash
 usage: main.py [-h] [-o] [-i INTERVAL] [-ri RANDOM_INTERVAL] [-bt BEARER_TOKEN] [-ak API_KEY] [-aks API_KEY_SECRET] [-at ACCESS_TOKEN] [-ats ACCESS_TOKEN_SECRET] [-ver] [-v] [-q] [-n] [-s SEED] [-en]
-               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest] [-on]
+               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest] [-on] [-ds]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -61,6 +61,8 @@ optional arguments:
                         Enable email test
   -on, --only_new
                         Only tweet new tweets
+  -ds, --diable_check_ssl
+                        Disable SSL check
 ```
 
 ## 環境変数

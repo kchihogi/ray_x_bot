@@ -64,7 +64,7 @@ def tweet(args, randomizer, client, api):
             if not args.quiet:
                 print(f"Sending email notification")
             # send email
-            mailer = Mailer(args.email_from, args.email_password, args.email_server, args.email_port)
+            mailer = Mailer(args.email_from, args.email_password, args.email_server, args.email_port, args.diable_check_ssl)
             body = args.email_body + f"\nError: {e}"
             mailer.send_email(args.email_to, args.email_subject, body)
         print(f"Error: {e}")
@@ -111,6 +111,7 @@ def main():
     parser.add_argument("-bo","--email_body", type=str, required=False, default=os.environ['EMAIL_BODY'] if 'EMAIL_BODY' in os.environ else None, help="Body of email to send. Default is from environment variable EMAIL_BODY if set")
     parser.add_argument("-etest","--email_test", action="store_true", help="Enable email test")
     parser.add_argument("-on","--only_new", action="store_true", help="Only tweet new tweets")
+    parser.add_argument("-ds","--diable_check_ssl", action="store_true", help="Disable SSL check for email")
     args = parser.parse_args()
 
     if not args.quiet:
@@ -124,7 +125,7 @@ def main():
         if not args.quiet:
             print("Sending test email")
         # send email
-        mailer = Mailer(args.email_from, args.email_password, args.email_server, args.email_port)
+        mailer = Mailer(args.email_from, args.email_password, args.email_server, args.email_port, args.diable_check_ssl)
         mailer.send_email(args.email_to, args.email_subject, args.email_body)
         exit(0)
 
