@@ -12,7 +12,7 @@ class Randomizer:
     def generate_random_number(self, start, end):
         return random.randint(start, end)
 
-    def get_random_tweet(self, only_new):
+    def get_random_tweet(self, only_new, dry_run):
         tweets = []
         if only_new:
             tweets = self.db.get_tweets_by_filter("times=0")
@@ -22,7 +22,8 @@ class Randomizer:
             get_random = self.generate_random_number(0, len(tweets)-1)
         except ValueError:
             raise ValueError("No tweets found")
-        self.db.update_tweet(tweets[get_random])
+        if not dry_run:
+            self.db.update_tweet(tweets[get_random])
         return tweets[get_random]
 
     def generate_random_number(self, start, end):

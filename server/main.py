@@ -43,7 +43,7 @@ def upload_image(tweet, api):
 def tweet(args, randomizer, client, api):
     ret = 0
     try:
-        tweet = randomizer.get_random_tweet(args.only_new)
+        tweet = randomizer.get_random_tweet(args.only_new, args.dry_run)
         if args.dry_run:
             print("Dry-run mode enabled")
             print(f"Tweeting: {tweet}")
