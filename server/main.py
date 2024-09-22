@@ -3,6 +3,7 @@ import asyncio
 import aioconsole
 import os
 import time
+from datetime import datetime, timedelta
 import tweepy
 from randomizer import Randomizer
 from mailer import Mailer
@@ -139,6 +140,29 @@ async def wait_for_tweet(args, randomizer, previous_interval):
 
     return interval
 
+def wait_until_specified_time(hour, minute):
+    # 現在の時刻を取得
+    now = datetime.now()
+
+    # 今日の指定された時刻を設定
+    target_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+    # 現在の時刻が指定の時刻を過ぎている場合、翌日の指定時刻に設定
+    if now > target_time:
+        target_time += timedelta(days=1)
+
+    # 指定時刻までの残り時間を計算
+    time_to_wait = (target_time - now).total_seconds()
+
+    print(f"Waiting for {time_to_wait // 3600:.0f} hours and {(time_to_wait % 3600) // 60:.0f} minutes and {time_to_wait % 60:.0f} seconds...")
+    print(f"Current time: {now.strftime('%Y-%m-%d %H:%M:%S')}. Waiting until: {target_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # 指定された時間まで待機
+    time.sleep(time_to_wait)
+
+    # 待機後の処理
+    print("The specified time has arrived! Continuing process...")
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--onetweet", action="store_true", help="Only tweet once and exit")
@@ -165,6 +189,7 @@ def main():
     parser.add_argument("-etest","--email_test", action="store_true", help="Enable email test")
     parser.add_argument("-on","--only_new", action="store_true", help="Only tweet new tweets")
     parser.add_argument("-ds","--diable_check_ssl", action="store_true", help="Disable SSL check for email")
+    parser.add_argument("-sat","--start_datetime", type=str, required=False, help="Start datetime for tweeting. Format: HH:MM. Timezone is " + time.tzname[0] + "(" + time.strftime("%z", time.localtime()) + ").")
     args = parser.parse_args()
 
     if not args.quiet:
@@ -205,6 +230,7 @@ def main():
             else:
                 print(f"Tweeting every {args.interval} seconds")
         try:
+            wait_until_specified_time((int(args.start_datetime.split(":")[0])), (int(args.start_datetime.split(":")[1])))
             previous_interval = 0
             while True:
                 ret = tweet(args, randomizer, client, api)

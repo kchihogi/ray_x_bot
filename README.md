@@ -15,9 +15,12 @@ python main.py
 
 `-h` オプションでヘルプを表示できます。
 
+    parser.add_argument("-sat","--start_datetime", type=str, required=False, help="Start datetime for tweeting. Format: HH:MM. Timezone is " + time.tzname[0] + "(" + time.strftime("%z", time.localtime()) + ").")
+
+
 ```bash
 usage: main.py [-h] [-o] [-i INTERVAL] [-ri RANDOM_INTERVAL] [-bt BEARER_TOKEN] [-ak API_KEY] [-aks API_KEY_SECRET] [-at ACCESS_TOKEN] [-ats ACCESS_TOKEN_SECRET] [-ver] [-v] [-q] [-n] [-s SEED] [-en]
-               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest] [-on] [-ds]
+               [-es EMAIL_SERVER] [-ep EMAIL_PORT] [-ef EMAIL_FROM] [-ps EMAIL_PASSWORD] [-et EMAIL_TO] [-su EMAIL_SUBJECT] [-bo EMAIL_BODY] [-etest] [-on] [-ds] [-sat START_DATETIME]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -63,6 +66,8 @@ optional arguments:
                         Only tweet new tweets
   -ds, --diable_check_ssl
                         Disable SSL check
+  -sat START_DATETIME, --start_datetime START_DATETIME
+                        Start datetime for tweeting. Format: HH:MM. Timezone is JST(+0900).
 ```
 
 ## 環境変数
