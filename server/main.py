@@ -1,4 +1,6 @@
 import argparse
+import asyncio
+import aioconsole
 import os
 import time
 import tweepy
@@ -71,7 +73,19 @@ def tweet(args, randomizer, client, api):
         ret = 1
     return ret
 
-def wait_for_tweet(args, randomizer, previous_interval):
+async def check_for_skip():
+    """非同期でユーザーが'S'を押すかを確認"""
+    while True:
+        print("Press 'S' to skip next tweet.")
+        user_input = await aioconsole.ainput()
+        if user_input.lower() == 's':
+            print("Skipping next tweet!")
+            return True
+        else:
+            print(f"Invalid input: {user_input}. Press 'S' to skip the next tweet.")
+            return False
+
+async def wait_for_tweet(args, randomizer, previous_interval):
     interval = args.interval
     base_interval = args.interval
     diff = base_interval - previous_interval if previous_interval > 0 else 0
@@ -85,13 +99,43 @@ def wait_for_tweet(args, randomizer, previous_interval):
         time.sleep(diff)
 
     if not args.quiet:
-        print(f"Sleeping for 0 / {interval} seconds")
+        now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        now_plus_interval = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + interval))
+        print(f"Sleeping for 0 / {interval} seconds. Current time: {now}. Next tweet at: {now_plus_interval}")
+
+    input_task = asyncio.create_task(check_for_skip())
+
     cnt = 0
+    skip = False
     while cnt < interval:
-        time.sleep(1)
-        cnt += 1
-        if cnt % (interval/10) == 0 and not args.quiet:
-            print(f"Sleeping for {cnt} / {interval} seconds")
+        sleep_task = asyncio.create_task(asyncio.sleep(1))
+
+        if skip:
+            done, pending = await asyncio.wait([sleep_task], return_when=asyncio.FIRST_COMPLETED)
+        else:
+            done, pending = await asyncio.wait([input_task, sleep_task], return_when=asyncio.FIRST_COMPLETED)
+
+        # sleep_taskが完了したらカウントを進める
+        if sleep_task in done:
+            cnt += 1
+
+            if cnt % (interval // 10 if interval > 10 else 1) == 0 and not args.quiet:
+                print(f"Sleeping for {cnt} / {interval} seconds")
+
+        # 入力が完了していたらスキップフラグをセット
+        if input_task in done:
+            skip = await input_task  # 'S'が押されたか確認
+            if not skip:
+                input_task.cancel()
+                input_task = asyncio.create_task(check_for_skip())
+    
+    if not input_task.done():
+        input_task.cancel()
+
+    if skip:
+        # reenter this function
+        print("Skipping tweet by user request.")
+        return await wait_for_tweet(args, randomizer, interval)
 
     return interval
 
@@ -164,7 +208,7 @@ def main():
             previous_interval = 0
             while True:
                 ret = tweet(args, randomizer, client, api)
-                previous_interval = wait_for_tweet(args, randomizer, previous_interval)
+                previous_interval = asyncio.run(wait_for_tweet(args, randomizer, previous_interval))
         except KeyboardInterrupt:
             if not args.quiet:
                 print("Exiting")
