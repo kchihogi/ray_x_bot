@@ -81,7 +81,7 @@ async def check_for_skip():
         try:
             user_input = await aioconsole.ainput()
             if user_input.lower() == 's':
-                print("Skipping next tweet!")
+                print("'S' pressed. Skipping next tweet!")
                 return True
             else:
                 print(f"Invalid input: {user_input}. Press 'S' to skip the next tweet.")
@@ -89,6 +89,22 @@ async def check_for_skip():
         except EOFError as e:
             print(f"EOFError occurred. Please check tty settings. Exiting the check. Error: {e}")
             return False
+        except Exception as e:
+            print(f"Error occurred. Exiting the check. Error: {e}")
+            return False
+
+async def check_for_skip_by_file():
+    """非同期でユーザーがファイルを作成するかを確認"""
+    skip_file = os.path.join(os.getcwd(), "skip_ray_x_bot")
+    print(f"Put a file named 'skip_ray_x_bot' to skip the next tweet. File path: {skip_file}")
+    while True:
+        try:
+            hit = await asyncio.to_thread(os.path.exists, skip_file)
+            if hit:
+                print("File 'skip_ray_x_bot' found. Skipping next tweet!")
+                os.remove(skip_file)
+                return True
+            time.sleep(0.5)
         except Exception as e:
             print(f"Error occurred. Exiting the check. Error: {e}")
             return False
@@ -111,7 +127,8 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         now_plus_interval = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + interval))
         print(f"Sleeping for 0 / {interval} seconds. Current time: {now}. Next tweet at: {now_plus_interval}")
 
-    input_task = asyncio.create_task(check_for_skip())
+    check_for_skip_task = asyncio.create_task(check_for_skip())
+    check_for_skip_by_file_task = asyncio.create_task(check_for_skip_by_file())
 
     cnt = 0
     skip = False
@@ -121,7 +138,7 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         if skip:
             done, pending = await asyncio.wait([sleep_task], return_when=asyncio.FIRST_COMPLETED)
         else:
-            done, pending = await asyncio.wait([input_task, sleep_task], return_when=asyncio.FIRST_COMPLETED)
+            done, pending = await asyncio.wait([check_for_skip_task, check_for_skip_by_file_task, sleep_task], return_when=asyncio.FIRST_COMPLETED)
 
         # sleep_taskが完了したらカウントを進める
         if sleep_task in done:
@@ -131,14 +148,24 @@ async def wait_for_tweet(args, randomizer, previous_interval):
                 print(f"Sleeping for {cnt} / {interval} seconds")
 
         # 入力が完了していたらスキップフラグをセット
-        if input_task in done:
-            skip = await input_task  # 'S'が押されたか確認
+        if check_for_skip_task in done:
+            skip = await check_for_skip_task  # 'S'が押されたか確認
             if not skip:
-                input_task.cancel()
-                input_task = asyncio.create_task(check_for_skip())
+                check_for_skip_task.cancel()
+                check_for_skip_task = asyncio.create_task(check_for_skip())
+
+        # ファイルが作成されていたらスキップフラグをセット
+        if check_for_skip_by_file_task in done:
+            skip = await check_for_skip_by_file_task
+            if not skip:
+                check_for_skip_by_file_task.cancel()
+                check_for_skip_by_file_task = asyncio.create_task(check_for_skip_by_file())
     
-    if not input_task.done():
-        input_task.cancel()
+    if not check_for_skip_task.done():
+        check_for_skip_task.cancel()
+
+    if not check_for_skip_by_file_task.done():
+        check_for_skip_by_file_task.cancel()
 
     if skip:
         # reenter this function
