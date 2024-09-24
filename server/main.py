@@ -105,16 +105,25 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         print(f"Sleeping for 0 / {interval} seconds. Current time: {now}. Next tweet at: {now_plus_interval}")
 
     input_task = asyncio.create_task(check_for_skip())
+    
+    if not args.quiet and args.verbose:
+        print("Creating input task to check for 'S' input")
 
     cnt = 0
     skip = False
     while cnt < interval:
         sleep_task = asyncio.create_task(asyncio.sleep(1))
 
+        if not args.quiet and args.verbose:
+            print(f"Creating task to sleep for 1 second. Current count: {cnt}")
+
         if skip:
             done, pending = await asyncio.wait([sleep_task], return_when=asyncio.FIRST_COMPLETED)
         else:
             done, pending = await asyncio.wait([input_task, sleep_task], return_when=asyncio.FIRST_COMPLETED)
+
+        if not args.quiet and args.verbose:
+            print(f"Joining tasks. Current count: {cnt}. done: {done}. pending: {pending}")
 
         # sleep_taskが完了したらカウントを進める
         if sleep_task in done:
@@ -230,7 +239,8 @@ def main():
             else:
                 print(f"Tweeting every {args.interval} seconds")
         try:
-            wait_until_specified_time((int(args.start_datetime.split(":")[0])), (int(args.start_datetime.split(":")[1])))
+            if args.start_datetime is not None:
+                wait_until_specified_time((int(args.start_datetime.split(":")[0])), (int(args.start_datetime.split(":")[1])))
             previous_interval = 0
             while True:
                 ret = tweet(args, randomizer, client, api)
