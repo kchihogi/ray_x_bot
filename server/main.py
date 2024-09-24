@@ -86,8 +86,8 @@ async def check_for_skip():
             else:
                 print(f"Invalid input: {user_input}. Press 'S' to skip the next tweet.")
                 return False
-        except EOFError:
-            print("No input provided. Exiting the check.")
+        except EOFError as e:
+            print(f"EOFError occurred. Please check tty settings. Exiting the check. Error: {e}")
             return False
         except Exception as e:
             print(f"Error occurred. Exiting the check. Error: {e}")
@@ -112,25 +112,16 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         print(f"Sleeping for 0 / {interval} seconds. Current time: {now}. Next tweet at: {now_plus_interval}")
 
     input_task = asyncio.create_task(check_for_skip())
-    
-    if not args.quiet and args.verbose:
-        print("Creating input task to check for 'S' input")
 
     cnt = 0
     skip = False
     while cnt < interval:
         sleep_task = asyncio.create_task(asyncio.sleep(1))
 
-        if not args.quiet and args.verbose:
-            print(f"Creating task to sleep for 1 second. Current count: {cnt}")
-
         if skip:
             done, pending = await asyncio.wait([sleep_task], return_when=asyncio.FIRST_COMPLETED)
         else:
             done, pending = await asyncio.wait([input_task, sleep_task], return_when=asyncio.FIRST_COMPLETED)
-
-        if not args.quiet and args.verbose:
-            print(f"Joining tasks. Current count: {cnt}. done: {done}. pending: {pending}")
 
         # sleep_taskが完了したらカウントを進める
         if sleep_task in done:
@@ -147,8 +138,6 @@ async def wait_for_tweet(args, randomizer, previous_interval):
                 input_task = asyncio.create_task(check_for_skip())
     
     if not input_task.done():
-        if not args.quiet and args.verbose:
-            print("Cancelling input task")
         input_task.cancel()
 
     if skip:
