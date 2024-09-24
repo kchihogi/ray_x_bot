@@ -78,12 +78,19 @@ async def check_for_skip():
     """非同期でユーザーが'S'を押すかを確認"""
     while True:
         print("Press 'S' to skip next tweet.")
-        user_input = await aioconsole.ainput()
-        if user_input.lower() == 's':
-            print("Skipping next tweet!")
-            return True
-        else:
-            print(f"Invalid input: {user_input}. Press 'S' to skip the next tweet.")
+        try:
+            user_input = await aioconsole.ainput()
+            if user_input.lower() == 's':
+                print("Skipping next tweet!")
+                return True
+            else:
+                print(f"Invalid input: {user_input}. Press 'S' to skip the next tweet.")
+                return False
+        except EOFError:
+            print("No input provided. Exiting the check.")
+            return False
+        except Exception as e:
+            print(f"Error occurred. Exiting the check. Error: {e}")
             return False
 
 async def wait_for_tweet(args, randomizer, previous_interval):
@@ -140,6 +147,8 @@ async def wait_for_tweet(args, randomizer, previous_interval):
                 input_task = asyncio.create_task(check_for_skip())
     
     if not input_task.done():
+        if not args.quiet and args.verbose:
+            print("Cancelling input task")
         input_task.cancel()
 
     if skip:
