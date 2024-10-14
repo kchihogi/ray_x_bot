@@ -132,6 +132,8 @@ async def wait_for_tweet(args, randomizer, previous_interval):
 
     cnt = 0
     skip = False
+    start_time = time.time()
+    total_drift = 0
     while cnt < interval:
         sleep_task = asyncio.create_task(asyncio.sleep(1))
 
@@ -143,7 +145,11 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         # sleep_taskが完了したらカウントを進める
         if sleep_task in done:
             cnt += 1
-
+            elapsed = int(time.time() - start_time)
+            if cnt != elapsed:
+                diff = elapsed - cnt
+                total_drift += diff
+                cnt = elapsed
             if cnt % (interval // 10 if interval > 10 else 1) == 0 and not args.quiet:
                 print(f"Sleeping for {cnt} / {interval} seconds")
 
@@ -171,6 +177,9 @@ async def wait_for_tweet(args, randomizer, previous_interval):
         # reenter this function
         print("Skipping tweet by user request.")
         return await wait_for_tweet(args, randomizer, interval)
+
+    if total_drift > 0 and not args.quiet:
+        print(f"Total drift: {total_drift} seconds")
 
     return interval
 
